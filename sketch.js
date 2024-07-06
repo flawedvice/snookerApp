@@ -24,6 +24,7 @@ const BALL_DIAMETER = TABLE_WIDTH / 36;
 
 let table;
 let game;
+let cue;
 
 function setup() {
 	createCanvas(window.innerWidth, window.innerHeight);
@@ -33,13 +34,19 @@ function setup() {
 
 	table = new Table();
 	game = new Game();
+	cue = new Cue();
 }
 
 function draw() {
+	background("lightblue");
 	table.draw();
 	game.draw();
+	cue.run();
 }
 
+/**
+ * Change position on key stroke.
+ */
 function keyReleased() {
 	if (key === "2") {
 		game = new Game("randomRed");
@@ -48,9 +55,6 @@ function keyReleased() {
 	} else if (key === "1") {
 		game = new Game();
 	}
-
-	// Code to run.
-	console.log("key: ", key);
 }
 
 class Table {
@@ -299,9 +303,9 @@ class Ball {
 	constructor(color, x, y) {
 		this.size = BALL_DIAMETER;
 		this.color = color;
-		this.position = new createVector(x, y);
-		this.speed = new createVector(0, 0);
-		this.acceleration = new createVector(0, 0);
+		this.position = createVector(x, y);
+		this.speed = createVector(0, 0);
+		this.acceleration = createVector(0, 0);
 		this.maxSpeed = 10;
 	}
 	draw() {
@@ -311,5 +315,38 @@ class Ball {
 		fill(this.color);
 		circle(this.position.x, this.position.y, BALL_DIAMETER, BALL_DIAMETER);
 		pop();
+	}
+}
+
+class Cue {
+	constructor() {
+		this.position = createVector(0, 0);
+		noCursor();
+	}
+
+	run() {
+		this.draw();
+		this.move();
+	}
+
+	draw() {
+		fill("#d5913b");
+		quad(
+			this.position.x,
+			this.position.y,
+			this.position.x + TABLE_WIDTH,
+			this.position.y,
+			this.position.x + TABLE_WIDTH,
+			this.position.y + 10,
+			this.position.x,
+			this.position.y + 2
+		);
+	}
+
+	move() {
+		const mouse = createVector(mouseX, mouseY);
+		this.position = mouse;
+		const direction = p5.Vector.sub(mouse, this.position);
+		direction.normalize();
 	}
 }
