@@ -23,7 +23,7 @@ const D_ZONE_LINE_X = -(TABLE_LENGTH / 2 - TABLE_CUSHIONS - TABLE_LENGTH / 4.8);
 const BALL_DIAMETER = TABLE_WIDTH / 36;
 
 let table;
-let ballsArray;
+let game;
 
 function setup() {
 	createCanvas(window.innerWidth, window.innerHeight);
@@ -32,12 +32,12 @@ function setup() {
 	ellipseMode(CENTER);
 
 	table = new Table();
-	ballsArray = new BallsArray("randomAll");
+	game = new Game();
 }
 
 function draw() {
 	table.draw();
-	ballsArray.draw();
+	game.draw();
 }
 
 class Table {
@@ -184,7 +184,7 @@ class Table {
 	}
 }
 
-class BallsArray {
+class Game {
 	constructor(mode) {
 		this.balls = [new Ball("white", D_ZONE_LINE_X * 1.2, 0)];
 		let colorBalls = [
@@ -258,10 +258,18 @@ class BallsArray {
 				}
 				break;
 			default:
+				let startHeight = 0;
 				for (let i = 1; i <= 5; i++) {
-					redBalls.push(new Ball(COLORS.get("redBall")));
-					/* for (let j = 0; j < i; j++) {
-					} */
+					for (let j = 1; j <= i; j++) {
+						redBalls.push(
+							new Ball(
+								COLORS.get("redBall"),
+								TABLE_LENGTH / 4 + BALL_DIAMETER * i,
+								startHeight + BALL_DIAMETER * (j - 1)
+							)
+						);
+					}
+					startHeight -= BALL_DIAMETER / 2;
 				}
 				break;
 		}
