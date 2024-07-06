@@ -40,6 +40,19 @@ function draw() {
 	game.draw();
 }
 
+function keyReleased() {
+	if (key === "2") {
+		game = new Game("randomRed");
+	} else if (key === "3") {
+		game = new Game("randomAll");
+	} else if (key === "1") {
+		game = new Game();
+	}
+
+	// Code to run.
+	console.log("key: ", key);
+}
+
 class Table {
 	constructor() {
 		this.length = TABLE_LENGTH;
