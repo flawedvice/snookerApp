@@ -1,43 +1,55 @@
-const tableLength = 900;
-const tableWidth = tableLength / 2;
-const ballDiameter = 15;
-
-let table;
+/// Constants
+// General constants
 const COLORS = new Map([
 	["brown", "#3f250d"],
 	["green", "#4e8834"],
 	["darkGreen", "#326018"],
 	["gold", "goldenrod"],
-	["greenBall", "#23460e"],
-	["orangeBall", "#af6a39"],
-	["yellowBall", "#bbbe3a"],
+	["greenBall", "#3fac00"],
+	["orangeBall", "#fb6e00"],
+	["yellowBall", "#f0e91e"],
 	["redBall", "#cb2e19"],
 	["blueBall", "#1c14d9"],
 	["violetBall", "#b0608d"],
 ]);
 
+// Table constants
+const TABLE_LENGTH = 900;
+const TABLE_WIDTH = TABLE_LENGTH / 2;
+const TABLE_CUSHIONS = 20;
+const D_ZONE_LINE_X = -(TABLE_LENGTH / 2 - TABLE_CUSHIONS - TABLE_LENGTH / 4.8);
+
+// Ball constants
+const BALL_DIAMETER = TABLE_WIDTH / 36;
+
+let table;
+let ballsArray;
+
 function setup() {
 	createCanvas(window.innerWidth, window.innerHeight);
 	background("lightblue");
 	rectMode(CENTER);
+	ellipseMode(CENTER);
 
 	table = new Table();
+	ballsArray = new BallsArray("randomAll");
 }
 
 function draw() {
 	table.draw();
+	ballsArray.draw();
 }
 
 class Table {
 	constructor() {
-		this.length = 900;
-		this.width = this.length / 2;
-		this.cushions = 20;
+		this.length = TABLE_LENGTH;
+		this.width = TABLE_WIDTH;
+		this.cushions = TABLE_CUSHIONS;
 		this.cornerRadius = 10;
-		this.lineMark = -(this.length / 2 - this.cushions - this.length / 4.8);
 	}
 
 	draw() {
+		push();
 		noStroke();
 		translate(width / 2, height / 2);
 
@@ -146,21 +158,21 @@ class Table {
 		for (const [origin, _, holeMargin] of pockets) {
 			push();
 			translate(...origin);
-			circle(holeMargin[0], holeMargin[1], ballDiameter * 1.5);
+			circle(holeMargin[0], holeMargin[1], BALL_DIAMETER * 1.5);
 			pop();
 		}
 
 		// Draw markings
 		stroke("white");
 		line(
-			this.lineMark,
+			D_ZONE_LINE_X,
 			this.width / 2 - this.cushions,
-			this.lineMark,
+			D_ZONE_LINE_X,
 			-this.width / 2 + this.cushions
 		);
 		noFill();
 		arc(
-			this.lineMark,
+			D_ZONE_LINE_X,
 			0,
 			this.width / 3,
 			this.width / 3,
@@ -168,5 +180,115 @@ class Table {
 			-HALF_PI,
 			CHORD
 		);
+		pop();
+	}
+}
+
+class BallsArray {
+	constructor(mode) {
+		this.balls = [new Ball("white", D_ZONE_LINE_X * 1.2, 0)];
+		let colorBalls = [
+			new Ball(COLORS.get("orangeBall"), D_ZONE_LINE_X, 0),
+			new Ball(COLORS.get("greenBall"), D_ZONE_LINE_X, -TABLE_WIDTH / 6),
+			new Ball(COLORS.get("yellowBall"), D_ZONE_LINE_X, TABLE_WIDTH / 6),
+			new Ball(COLORS.get("blueBall"), 0, 0),
+			new Ball(COLORS.get("violetBall"), TABLE_LENGTH / 4, 0),
+			new Ball("black", TABLE_LENGTH / 2 - TABLE_LENGTH / 8, 0),
+		];
+		let redBalls = [];
+
+		const xLimits = [
+			-TABLE_LENGTH / 2 + TABLE_CUSHIONS * 1.5,
+			TABLE_LENGTH / 2 - TABLE_CUSHIONS * 1.5,
+		];
+		const yLimits = [
+			-TABLE_WIDTH / 2 + TABLE_CUSHIONS * 1.5,
+			TABLE_WIDTH / 2 - TABLE_CUSHIONS * 1.5,
+		];
+
+		switch (mode) {
+			case "randomRed":
+				for (let i = 1; i <= 15; i++) {
+					redBalls.push(
+						new Ball(
+							COLORS.get("redBall"),
+							random(...xLimits),
+							random(...yLimits)
+						)
+					);
+				}
+				break;
+			case "randomAll":
+				colorBalls = [
+					new Ball(
+						COLORS.get("orangeBall"),
+						random(...xLimits),
+						random(...yLimits)
+					),
+					new Ball(
+						COLORS.get("greenBall"),
+						random(...xLimits),
+						random(...yLimits)
+					),
+					new Ball(
+						COLORS.get("yellowBall"),
+						random(...xLimits),
+						random(...yLimits)
+					),
+					new Ball(
+						COLORS.get("blueBall"),
+						random(...xLimits),
+						random(...yLimits)
+					),
+					new Ball(
+						COLORS.get("violetBall"),
+						random(...xLimits),
+						random(...yLimits)
+					),
+					new Ball("black", random(...xLimits), random(...yLimits)),
+				];
+				for (let i = 1; i <= 15; i++) {
+					redBalls.push(
+						new Ball(
+							COLORS.get("redBall"),
+							random(...xLimits),
+							random(...yLimits)
+						)
+					);
+				}
+				break;
+			default:
+				for (let i = 1; i <= 5; i++) {
+					redBalls.push(new Ball(COLORS.get("redBall")));
+					/* for (let j = 0; j < i; j++) {
+					} */
+				}
+				break;
+		}
+		this.balls.push(...colorBalls, ...redBalls);
+	}
+	draw() {
+		for (const ball of this.balls) {
+			ball.draw();
+		}
+	}
+}
+
+class Ball {
+	constructor(color, x, y) {
+		this.size = BALL_DIAMETER;
+		this.color = color;
+		this.position = new createVector(x, y);
+		this.speed = new createVector(0, 0);
+		this.acceleration = new createVector(0, 0);
+		this.maxSpeed = 10;
+	}
+	draw() {
+		push();
+		translate(width / 2, height / 2);
+		noStroke();
+		fill(this.color);
+		circle(this.position.x, this.position.y, BALL_DIAMETER, BALL_DIAMETER);
+		pop();
 	}
 }
