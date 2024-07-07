@@ -22,3 +22,11 @@ function setUpCollisions() {
 	bodies.push(cueBall.body);
 	bodies.forEach((body) => (body.isSensor = false));
 }
+
+function setUpP5() {
+	canvas = createCanvas(window.innerWidth, window.innerHeight);
+	background("lightblue");
+	rectMode(CENTER);
+	ellipseMode(CENTER);
+	angleMode(DEGREES);
+}

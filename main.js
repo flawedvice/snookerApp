@@ -21,11 +21,7 @@ let cueBall;
 
 function setup() {
 	/// Environment configuration
-	canvas = createCanvas(window.innerWidth, window.innerHeight);
-	background("lightblue");
-	rectMode(CENTER);
-	ellipseMode(CENTER);
-
+	setUpP5();
 	/// Matter.js setup
 	// Create engine
 	engine = Engine.create({ gravity: { y: 0 } });
@@ -33,9 +29,10 @@ function setup() {
 	/// Elements setup
 	table = new Table();
 	game = new Game();
-	//cue = new Cue();
-	cueBall = new Ball("white", D_ZONE_LINE_X - 50, height / 2, "cue Ball");
+	cue = new Cue();
+	cueBall = new Ball("white", D_ZONE_LINE_X - 50, 200, "cue Ball", 0x0002);
 
+	// Mouse interactions
 	mouse = Mouse.create(canvas.elt);
 	const mouseParams = { mouse };
 	mouseConstraint = MouseConstraint.create(engine, mouseParams);

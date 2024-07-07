@@ -372,12 +372,15 @@ class Game {
 }
 
 class Ball {
-	constructor(color, x, y, label = "") {
+	constructor(color, x, y, label = "", category = 0x0001) {
 		const options = {
 			restitution: 1.1, // bounciness
 			friction: 0.4,
 			label,
 			isSensor: true,
+			collisionFilter: {
+				category,
+			},
 		};
 		this.body = Bodies.circle(x, y, BALL_DIAMETER / 2, options);
 		this.color = color;
@@ -410,18 +413,10 @@ class Ball {
 
 class Cue {
 	constructor() {
-		this.position = createVector(width / 2, height - 400);
-
-		const options = { isStatic: true };
-		this.body = Bodies.rectangle(
-			this.position.x,
-			this.position.y,
-			TABLE_WIDTH,
-			5,
-			options
-		);
-
-		Composite.add(engine.world, this.body);
+		this.cuePoint = createVector(mouseX, mouseY);
+		this.cueLength = TABLE_WIDTH;
+		this.direction = createVector(mouseX, mouseY);
+		this.limit = 50;
 	}
 
 	run() {
@@ -429,10 +424,26 @@ class Cue {
 		this.draw();
 	}
 
-	draw() {
-		fill("#d5913b");
-		rect(this.position.x, this.position.y, TABLE_WIDTH, 5);
+	draw() {}
+
+	move() {
+		const ballPos = cueBall.body.position;
+		const { x: ballX, y: ballY } = ballPos;
+
+		this.cuePoint = createVector(mouseX, mouseY);
+		this.direction = createVector(mouseX - ballX, mouseY - ballY);
+		this.direction.normalize();
+		this.drawCue(this.cuePoint, this.direction.mult(this.cueLength));
 	}
 
-	move() {}
+	drawCue(base, vec) {
+		push();
+		fill("#d5913b");
+		stroke("#d5913b");
+		strokeWeight(3);
+		translate(base.x, base.y);
+		line(0, 0, vec.x, vec.y);
+		rotate(vec.heading);
+		pop();
+	}
 }
