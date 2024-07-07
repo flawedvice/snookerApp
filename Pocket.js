@@ -51,11 +51,17 @@ class Pocket {
 	setEvents() {
 		Events.on(engine, "collisionStart", (event) => {
 			const pairs = event.pairs;
-			pairs.forEach((pair) => {
-				if (pair.bodyA === this.body) {
-					Composite.remove(world, pair.bodyB);
-				} else if (pair.bodyB === this.body) {
-					Composite.remove(world, pair.bodyA);
+			pairs.forEach(({ bodyA, bodyB }) => {
+				let toRemove = null;
+				if (bodyA === this.body) {
+					toRemove = bodyB;
+				} else if (bodyB === this.body) {
+					toRemove = bodyA;
+				}
+				if (toRemove && toRemove.label === "red ball") {
+					Composite.remove(world, toRemove);
+				} else if (toRemove) {
+					Ball.toOrigin(toRemove);
 				}
 			});
 		});

@@ -1,22 +1,23 @@
 class Ball {
-	constructor(x, y, color) {
+	constructor(x, y, color, id) {
 		this.x = x;
 		this.y = y;
 		this.color = color;
 		this.maxSpeed = 10;
 
-		let label = "colour ball";
+		this.type = "colour";
 		if (color === "white") {
-			label = "cue ball";
+			this.type = "cue";
 		} else if (color === "red") {
-			label = "red ball";
+			this.type = "red";
 		}
 
 		const options = {
 			restitution: 1.1, // bounciness
 			friction: 0.4,
 			isSensor: true,
-			label,
+			label: `${this.type} ball`,
+			id,
 		};
 		this.body = Bodies.circle(this.x, this.y, BALL_DIAMETER / 2, options);
 
@@ -35,10 +36,11 @@ class Ball {
 	}
 
 	update() {
-		const isCueBall = this.color === "white";
 		if (!Composite.allBodies(world).includes(this.body)) {
-			if (isCueBall) {
+			if (this.type === "cue") {
 				this.body.position.y = 200;
+			} else if (this.type === "colour") {
+				console.log(this.color + " ball potted");
 			} else this.body = null;
 		} else {
 			if (Body.getSpeed(this.body) > this.maxSpeed) {
@@ -68,5 +70,17 @@ class Ball {
 				}
 			});
 		});
+	}
+
+	static toOrigin(ball) {
+		const ballId = ball.id;
+
+		let ballOrigin = null;
+		if (ballId < 7) {
+			ballOrigin = Object.values(BALLS).find(({ id }) => id === ballId);
+		}
+		const origin = Vector.create(ballOrigin.x, ballOrigin.y);
+		Body.setPosition(ball, origin, false);
+		Body.setSpeed(ball, 0);
 	}
 }

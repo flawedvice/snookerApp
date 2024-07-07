@@ -6,7 +6,8 @@ let Engine,
 	Mouse,
 	MouseConstraint,
 	Bodies,
-	Body;
+	Body,
+	Vector;
 
 let engine, world, mouse, mouseContraint;
 let canvas;
@@ -30,6 +31,7 @@ function configMatter() {
 	MouseConstraint = Matter.MouseConstraint;
 	Bodies = Matter.Bodies;
 	Body = Matter.Body;
+	Vector = Matter.Vector;
 
 	const engineOpts = {
 		gravity: { y: 0 },

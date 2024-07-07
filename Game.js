@@ -9,7 +9,12 @@ class Game {
 		this.placeRedBalls();
 
 		this.table = new Table();
-		cueBall = new Ball(width / 2, 200, "white");
+		cueBall = new Ball(
+			BALLS.cue.x,
+			BALLS.cue.y,
+			BALLS.cue.color,
+			BALLS.cue.id
+		);
 	}
 
 	draw() {
@@ -31,7 +36,8 @@ class Game {
 					new Ball(
 						random(this.leftLimit, this.rightLimit),
 						random(this.bottomLimit, this.topLimit),
-						"red"
+						"red",
+						i + 7
 					)
 				);
 			}
@@ -41,6 +47,7 @@ class Game {
 			let baseX = width / 2 + TABLE_LENGTH / 4 + gap,
 				baseY = height / 2;
 			let x, y;
+			let id = 7;
 			for (let i = 1; i <= 5; i++) {
 				// Columns
 				baseX += gap;
@@ -50,7 +57,8 @@ class Game {
 					baseY += gap;
 					x = baseX + BALL_DIAMETER * i;
 					y = baseY + startHeight + BALL_DIAMETER * (j - 1);
-					this.redBalls.push(new Ball(x, y, "red"));
+					this.redBalls.push(new Ball(x, y, "red", id));
+					id++;
 				}
 				startHeight -= BALL_DIAMETER / 2 + gap;
 			}
@@ -63,45 +71,77 @@ class Game {
 				new Ball(
 					random(this.leftLimit, this.rightLimit),
 					random(this.bottomLimit, this.topLimit),
-					"orange"
+					BALLS.orange.color,
+					BALLS.orange.id
 				),
 				new Ball(
 					random(this.leftLimit, this.rightLimit),
 					random(this.bottomLimit, this.topLimit),
-					"green"
+					BALLS.green.color,
+					BALLS.green.id
 				),
 				new Ball(
 					random(this.leftLimit, this.rightLimit),
 					random(this.bottomLimit, this.topLimit),
-					"yellow"
+					BALLS.yellow.color,
+					BALLS.yellow.id
 				),
 				new Ball(
 					random(this.leftLimit, this.rightLimit),
 					random(this.bottomLimit, this.topLimit),
-					"blue"
+					BALLS.blue.color,
+					BALLS.blue.id
 				),
 				new Ball(
 					random(this.leftLimit, this.rightLimit),
 					random(this.bottomLimit, this.topLimit),
-					"purple"
+					BALLS.purple.color,
+					BALLS.purple.id
 				),
 				new Ball(
 					random(this.leftLimit, this.rightLimit),
 					random(this.bottomLimit, this.topLimit),
-					"black"
+					BALLS.black.color,
+					BALLS.black.id
 				),
 			];
 		} else {
 			this.colorBalls = [
-				new Ball(ZONE_D_LINE, height / 2, "orange"),
-				new Ball(ZONE_D_LINE, height / 2 - TABLE_WIDTH / 6, "green"),
-				new Ball(ZONE_D_LINE, height / 2 + TABLE_WIDTH / 6, "yellow"),
-				new Ball(width / 2, height / 2, "blue"),
-				new Ball(width / 2 + TABLE_LENGTH / 4, height / 2, "purple"),
 				new Ball(
-					width / 2 + TABLE_LENGTH / 2 - TABLE_LENGTH / 8,
-					height / 2,
-					"black"
+					BALLS.orange.x,
+					BALLS.orange.y,
+					BALLS.orange.color,
+					BALLS.orange.id
+				),
+				new Ball(
+					BALLS.green.x,
+					BALLS.green.y,
+					BALLS.green.color,
+					BALLS.green.id
+				),
+				new Ball(
+					BALLS.yellow.x,
+					BALLS.yellow.y,
+					BALLS.yellow.color,
+					BALLS.yellow.id
+				),
+				new Ball(
+					BALLS.blue.x,
+					BALLS.blue.y,
+					BALLS.blue.color,
+					BALLS.blue.id
+				),
+				new Ball(
+					BALLS.purple.x,
+					BALLS.purple.y,
+					BALLS.purple.color,
+					BALLS.purple.id
+				),
+				new Ball(
+					BALLS.black.x,
+					BALLS.black.y,
+					BALLS.black.color,
+					BALLS.black.id
 				),
 			];
 		}
