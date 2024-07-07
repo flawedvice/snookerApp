@@ -1,24 +1,23 @@
 // Module aliases
 let Engine = Matter.Engine,
-	Render = Matter.Render,
 	Composite = Matter.Composite,
 	Body = Matter.Body,
 	Bodies = Matter.Bodies,
 	Mouse = Matter.Mouse,
-	MouseConstraint = Matter.MouseConstraint;
+	MouseConstraint = Matter.MouseConstraint,
+	Events = Matter.Events;
 
 // Matter.js objects
 let engine;
 let canvas;
 let mouse;
+let mouseConstraint;
 
 // Elements
 let table;
 let game;
 let cue;
 let cueBall;
-
-let ground, ball, body;
 
 function setup() {
 	/// Environment configuration
@@ -29,18 +28,21 @@ function setup() {
 
 	/// Matter.js setup
 	// Create engine
-	engine = Engine.create({ gravity: { y: -1 } });
-
-	mouse = Mouse.create(canvas.elt);
-	const mouseParams = { mouse };
-	const mouseConstraint = MouseConstraint.create(engine, mouseParams);
-	Composite.add(engine.world, mouseConstraint);
+	engine = Engine.create({ gravity: { y: 0 } });
 
 	/// Elements setup
 	table = new Table();
 	game = new Game();
-	cue = new Cue();
-	cueBall = new Ball("white", D_ZONE_LINE_X - 50, height / 2);
+	//cue = new Cue();
+	cueBall = new Ball("white", D_ZONE_LINE_X - 50, height / 2, "cue Ball");
+
+	mouse = Mouse.create(canvas.elt);
+	const mouseParams = { mouse };
+	mouseConstraint = MouseConstraint.create(engine, mouseParams);
+	Composite.add(engine.world, mouseConstraint);
+
+	setUpGrabbing();
+	setUpCollisions();
 }
 
 function draw() {
@@ -53,7 +55,7 @@ function draw() {
 	table.run();
 	game.run();
 	cueBall.run();
-	cue.run();
+	//cue.run();
 }
 
 /**

@@ -10,7 +10,7 @@ const COLORS = new Map([
 	["yellowBall", "#f0e91e"],
 	["redBall", "#cb2e19"],
 	["blueBall", "#1c14d9"],
-	["violetBall", "#b0608d"],
+	["purpleBall", "purple"],
 ]);
 
 // Table constants
@@ -24,3 +24,8 @@ const D_ZONE_LINE_X = window.innerWidth / 2 - TABLE_LENGTH / (2 * 1.7);
 
 // Ball constants
 const BALL_DIAMETER = TABLE_WIDTH / 36;
+
+const cueBallCollision = 0x0001,
+	redCollision = 0x0002,
+	colorCollision = 0x0003,
+	cushionCollision = 0x0004;

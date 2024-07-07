@@ -7,42 +7,40 @@ class Table {
 		this.bottom = this.width / 2 - TABLE_CUSHIONS / 2;
 		this.right = this.width - TABLE_CUSHIONS / 2;
 		this.left = -this.width + TABLE_CUSHIONS / 2;
+		const options = {
+			isStatic: true,
+			restitution: 0.2,
+			friction: 1,
+			label: "cushion",
+		};
 		this.cushions = [
 			Bodies.rectangle(
 				width / 2,
 				height / 2 + TABLE_WIDTH / 2 - TABLE_CUSHIONS / 2,
 				TABLE_LENGTH,
 				TABLE_CUSHIONS,
-				{
-					isStatic: true,
-				}
+				options
 			),
 			Bodies.rectangle(
 				width / 2,
 				height / 2 - TABLE_WIDTH / 2 + TABLE_CUSHIONS / 2,
 				TABLE_LENGTH,
 				TABLE_CUSHIONS,
-				{
-					isStatic: true,
-				}
+				options
 			),
 			Bodies.rectangle(
 				width / 2 - TABLE_LENGTH / 2 + TABLE_CUSHIONS / 2,
 				height / 2,
 				TABLE_CUSHIONS,
 				TABLE_WIDTH,
-				{
-					isStatic: true,
-				}
+				options
 			),
 			Bodies.rectangle(
 				width / 2 + TABLE_LENGTH / 2 - TABLE_CUSHIONS / 2,
 				height / 2,
 				TABLE_CUSHIONS,
 				TABLE_WIDTH,
-				{
-					isStatic: true,
-				}
+				options
 			),
 		];
 		Composite.add(engine.world, this.cushions);
@@ -210,7 +208,14 @@ class Table {
 		pop();
 	}
 
+	checkBalls() {
+		for (const ball in game.redBalls) {
+			// Check if in pocket, then remove
+		}
+	}
+
 	run() {
+		this.checkBalls();
 		this.draw();
 	}
 }
@@ -219,30 +224,44 @@ class Game {
 	constructor(mode) {
 		this.balls = [];
 		let colorBalls = [
-			new Ball(COLORS.get("orangeBall"), D_ZONE_LINE_X, height / 2),
+			new Ball(
+				COLORS.get("orangeBall"),
+				D_ZONE_LINE_X,
+				height / 2,
+				"orange ball"
+			),
 			new Ball(
 				COLORS.get("greenBall"),
 				D_ZONE_LINE_X,
-				height / 2 - TABLE_WIDTH / 6
+				height / 2 - TABLE_WIDTH / 6,
+				"green ball"
 			),
 			new Ball(
 				COLORS.get("yellowBall"),
 				D_ZONE_LINE_X,
-				height / 2 + TABLE_WIDTH / 6
+				height / 2 + TABLE_WIDTH / 6,
+				"yellow ball"
 			),
-			new Ball(COLORS.get("blueBall"), width / 2, height / 2),
 			new Ball(
-				COLORS.get("violetBall"),
+				COLORS.get("blueBall"),
+				width / 2,
+				height / 2,
+				"blue ball"
+			),
+			new Ball(
+				COLORS.get("purpleBall"),
 				width / 2 + TABLE_LENGTH / 4,
-				height / 2
+				height / 2,
+				"purple ball"
 			),
 			new Ball(
 				"black",
 				width / 2 + TABLE_LENGTH / 2 - TABLE_LENGTH / 8,
-				height / 2
+				height / 2,
+				"black ball"
 			),
 		];
-		let redBalls = [];
+		this.redBalls = [];
 
 		const xLimits = [
 			width / 2 - TABLE_LENGTH / 2 + TABLE_CUSHIONS * 1.5,
@@ -256,11 +275,12 @@ class Game {
 		switch (mode) {
 			case "randomRed":
 				for (let i = 1; i <= 15; i++) {
-					redBalls.push(
+					this.redBalls.push(
 						new Ball(
 							COLORS.get("redBall"),
 							random(...xLimits),
-							random(...yLimits)
+							random(...yLimits),
+							"red ball"
 						)
 					);
 				}
@@ -270,61 +290,75 @@ class Game {
 					new Ball(
 						COLORS.get("orangeBall"),
 						random(...xLimits),
-						random(...yLimits)
+						random(...yLimits),
+						"orange ball"
 					),
 					new Ball(
 						COLORS.get("greenBall"),
 						random(...xLimits),
-						random(...yLimits)
+						random(...yLimits),
+						"green ball"
 					),
 					new Ball(
 						COLORS.get("yellowBall"),
 						random(...xLimits),
-						random(...yLimits)
+						random(...yLimits),
+						"yellow ball"
 					),
 					new Ball(
 						COLORS.get("blueBall"),
 						random(...xLimits),
-						random(...yLimits)
+						random(...yLimits),
+						"blue ball"
 					),
 					new Ball(
-						COLORS.get("violetBall"),
+						COLORS.get("purpleBall"),
 						random(...xLimits),
-						random(...yLimits)
+						random(...yLimits),
+						"purple ball"
 					),
-					new Ball("black", random(...xLimits), random(...yLimits)),
+					new Ball(
+						"black",
+						random(...xLimits),
+						random(...yLimits),
+						"black ball"
+					),
 				];
 				for (let i = 1; i <= 15; i++) {
-					redBalls.push(
+					this.redBalls.push(
 						new Ball(
 							COLORS.get("redBall"),
 							random(...xLimits),
-							random(...yLimits)
+							random(...yLimits),
+							"red ball"
 						)
 					);
 				}
 				break;
 			default:
 				let startHeight = 0;
+				let gap = 2;
+				let baseX = width / 2 + TABLE_LENGTH / 4 + gap,
+					baseY = height / 2;
+				let x, y;
 				for (let i = 1; i <= 5; i++) {
+					// Columns
+					baseX += gap;
+					baseY = height / 2;
 					for (let j = 1; j <= i; j++) {
-						redBalls.push(
-							new Ball(
-								COLORS.get("redBall"),
-								width / 2 +
-									TABLE_LENGTH / 4 +
-									BALL_DIAMETER * i,
-								height / 2 +
-									startHeight +
-									BALL_DIAMETER * (j - 1)
-							)
+						// Rows
+						baseY += gap;
+						x = baseX + BALL_DIAMETER * i;
+						y = baseY + startHeight + BALL_DIAMETER * (j - 1);
+						this.redBalls.push(
+							new Ball(COLORS.get("redBall"), x, y, "red ball")
 						);
 					}
-					startHeight -= BALL_DIAMETER / 2;
+					startHeight -= BALL_DIAMETER / 2 + gap;
 				}
 				break;
 		}
-		this.balls.push(...colorBalls, ...redBalls);
+		this.balls.push(...colorBalls, ...this.redBalls);
 	}
 	draw() {
 		for (const ball of this.balls) {
@@ -338,10 +372,12 @@ class Game {
 }
 
 class Ball {
-	constructor(color, x, y) {
+	constructor(color, x, y, label = "") {
 		const options = {
-			restitution: 1, // bounciness
-			friction: 0.5,
+			restitution: 1.1, // bounciness
+			friction: 0.4,
+			label,
+			isSensor: true,
 		};
 		this.body = Bodies.circle(x, y, BALL_DIAMETER / 2, options);
 		this.color = color;
@@ -374,36 +410,29 @@ class Ball {
 
 class Cue {
 	constructor() {
-		this.position = createVector(0, 0);
+		this.position = createVector(width / 2, height - 400);
+
+		const options = { isStatic: true };
+		this.body = Bodies.rectangle(
+			this.position.x,
+			this.position.y,
+			TABLE_WIDTH,
+			5,
+			options
+		);
+
+		Composite.add(engine.world, this.body);
 	}
 
 	run() {
-		this.draw();
 		this.move();
+		this.draw();
 	}
 
 	draw() {
 		fill("#d5913b");
-		quad(
-			this.position.x,
-			this.position.y,
-			this.position.x + TABLE_WIDTH,
-			this.position.y,
-			this.position.x + TABLE_WIDTH,
-			this.position.y + 10,
-			this.position.x,
-			this.position.y + 2
-		);
+		rect(this.position.x, this.position.y, TABLE_WIDTH, 5);
 	}
 
-	move() {
-		const mouse = createVector(mouseX, mouseY);
-		this.position = mouse;
-		const direction = p5.Vector.sub(mouse, this.position);
-		direction.normalize();
-	}
-
-	getPosition() {
-		return this.position;
-	}
+	move() {}
 }
