@@ -62,4 +62,13 @@ function configMouse() {
 		}
 		//Body.setPosition(cue.body, mouse.position.x, mouse.position.y);
 	});
+
+	Events.on(mouseConstraint, "startdrag", (event) => {
+		const body = event.body;
+		if (body.label.includes("ball")) body.isSensor = true;
+	});
+	Events.on(mouseConstraint, "enddrag", (event) => {
+		const body = event.body;
+		if (body.label.includes("ball")) body.isSensor = false;
+	});
 }
