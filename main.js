@@ -3,11 +3,14 @@ let Engine = Matter.Engine,
 	Render = Matter.Render,
 	Composite = Matter.Composite,
 	Body = Matter.Body,
-	Bodies = Matter.Bodies;
+	Bodies = Matter.Bodies,
+	Mouse = Matter.Mouse,
+	MouseConstraint = Matter.MouseConstraint;
 
 // Matter.js objects
 let engine;
-let physicBall;
+let canvas;
+let mouse;
 
 // Elements
 let table;
@@ -19,20 +22,24 @@ let ground, ball, body;
 
 function setup() {
 	/// Environment configuration
-	createCanvas(window.innerWidth, window.innerHeight);
+	canvas = createCanvas(window.innerWidth, window.innerHeight);
 	background("lightblue");
 	rectMode(CENTER);
 	ellipseMode(CENTER);
 
 	/// Matter.js setup
 	// Create engine
-	engine = Engine.create({ gravity: { y: 1 } });
+	engine = Engine.create({ gravity: { y: -1 } });
+
+	mouse = Mouse.create(canvas.elt);
+	const mouseParams = { mouse };
+	const mouseConstraint = MouseConstraint.create(engine, mouseParams);
+	Composite.add(engine.world, mouseConstraint);
 
 	/// Elements setup
 	table = new Table();
 	game = new Game();
-	//cue = new Cue();
-	console.log(D_ZONE_LINE_X);
+	cue = new Cue();
 	cueBall = new Ball("white", D_ZONE_LINE_X - 50, height / 2);
 }
 
@@ -43,13 +50,10 @@ function draw() {
 	Engine.update(engine);
 
 	/// Draw objects
-	table.ballInPocket(cueBall);
-	table.draw();
-
-	//cue.run();
-
-	game.draw();
-	cueBall.draw();
+	table.run();
+	game.run();
+	cueBall.run();
+	cue.run();
 }
 
 /**

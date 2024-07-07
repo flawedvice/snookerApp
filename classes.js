@@ -2,13 +2,12 @@ class Table {
 	constructor() {
 		this.length = TABLE_LENGTH;
 		this.width = TABLE_WIDTH;
-		this.cushions = TABLE_CUSHIONS;
 		this.cornerRadius = 10;
-		this.top = -this.width / 2 + this.cushions / 2;
-		this.bottom = this.width / 2 - this.cushions / 2;
-		this.right = this.width - this.cushions / 2;
-		this.left = -this.width + this.cushions / 2;
-		this.pCushions = [
+		this.top = -this.width / 2 + TABLE_CUSHIONS / 2;
+		this.bottom = this.width / 2 - TABLE_CUSHIONS / 2;
+		this.right = this.width - TABLE_CUSHIONS / 2;
+		this.left = -this.width + TABLE_CUSHIONS / 2;
+		this.cushions = [
 			Bodies.rectangle(
 				width / 2,
 				height / 2 + TABLE_WIDTH / 2 - TABLE_CUSHIONS / 2,
@@ -46,7 +45,7 @@ class Table {
 				}
 			),
 		];
-		Composite.add(engine.world, this.pCushions);
+		Composite.add(engine.world, this.cushions);
 	}
 
 	draw() {
@@ -60,7 +59,7 @@ class Table {
 	}
 
 	_drawCushions() {
-		for (const cush of this.pCushions) {
+		for (const cush of this.cushions) {
 			push();
 			fill(COLORS.get("brown"));
 			const pos = cush.position;
@@ -78,8 +77,8 @@ class Table {
 		rect(
 			0,
 			0,
-			this.length - 2 * this.cushions,
-			this.width - 2 * this.cushions
+			this.length - 2 * TABLE_CUSHIONS,
+			this.width - 2 * TABLE_CUSHIONS
 		);
 		pop();
 	}
@@ -90,7 +89,7 @@ class Table {
 
 		fill(COLORS.get("gold"));
 
-		const pad = this.cushions / 2;
+		const pad = TABLE_CUSHIONS / 2;
 
 		const pockets = [
 			// Top Center
@@ -130,42 +129,48 @@ class Table {
 			switch (i) {
 				case 2:
 					rect(
-						-this.cushions / 4,
-						this.cushions / 4,
-						this.cushions * 1.5,
-						this.cushions * 1.5,
+						-TABLE_CUSHIONS / 4,
+						TABLE_CUSHIONS / 4,
+						TABLE_CUSHIONS * 1.5,
+						TABLE_CUSHIONS * 1.5,
 						...corners
 					);
 					break;
 				case 3:
 					rect(
-						-this.cushions / 4,
-						-this.cushions / 4,
-						this.cushions * 1.5,
-						this.cushions * 1.5,
+						-TABLE_CUSHIONS / 4,
+						-TABLE_CUSHIONS / 4,
+						TABLE_CUSHIONS * 1.5,
+						TABLE_CUSHIONS * 1.5,
 						...corners
 					);
 					break;
 				case 4:
 					rect(
-						this.cushions / 4,
-						-this.cushions / 4,
-						this.cushions * 1.5,
-						this.cushions * 1.5,
+						TABLE_CUSHIONS / 4,
+						-TABLE_CUSHIONS / 4,
+						TABLE_CUSHIONS * 1.5,
+						TABLE_CUSHIONS * 1.5,
 						...corners
 					);
 					break;
 				case 5:
 					rect(
-						this.cushions / 4,
-						this.cushions / 4,
-						this.cushions * 1.5,
-						this.cushions * 1.5,
+						TABLE_CUSHIONS / 4,
+						TABLE_CUSHIONS / 4,
+						TABLE_CUSHIONS * 1.5,
+						TABLE_CUSHIONS * 1.5,
 						...corners
 					);
 					break;
 				default:
-					rect(0, 0, this.cushions * 1.5, this.cushions, ...corners);
+					rect(
+						0,
+						0,
+						TABLE_CUSHIONS * 1.5,
+						TABLE_CUSHIONS,
+						...corners
+					);
 			}
 			pop();
 		}
@@ -188,9 +193,9 @@ class Table {
 		translate(0, height / 2);
 		line(
 			D_ZONE_LINE_X,
-			this.width / 2 - this.cushions,
+			this.width / 2 - TABLE_CUSHIONS,
 			D_ZONE_LINE_X,
-			-this.width / 2 + this.cushions
+			-this.width / 2 + TABLE_CUSHIONS
 		);
 		noFill();
 		arc(
@@ -205,11 +210,8 @@ class Table {
 		pop();
 	}
 
-	ballInPocket(ball) {
-		const pos = ball.body.position;
-		if (pos.x < this.left * 1.5) {
-			console.log(pos.x);
-		}
+	run() {
+		this.draw();
 	}
 }
 
@@ -326,8 +328,12 @@ class Game {
 	}
 	draw() {
 		for (const ball of this.balls) {
-			ball.draw();
+			ball.run();
 		}
+	}
+
+	run() {
+		this.draw();
 	}
 }
 
@@ -339,6 +345,7 @@ class Ball {
 		};
 		this.body = Bodies.circle(x, y, BALL_DIAMETER / 2, options);
 		this.color = color;
+		this.maxSpeed = 10;
 
 		// Add object to the world
 		Composite.add(engine.world, this.body);
@@ -351,6 +358,17 @@ class Ball {
 		translate(pos.x, pos.y);
 		circle(0, 0, BALL_DIAMETER);
 		pop();
+	}
+
+	update() {
+		if (Body.getSpeed(this.body) > this.maxSpeed) {
+			Body.setSpeed(this.body, this.maxSpeed);
+		}
+	}
+
+	run() {
+		this.update();
+		this.draw();
 	}
 }
 
