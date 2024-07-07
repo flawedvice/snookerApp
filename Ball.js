@@ -3,7 +3,15 @@ class Ball {
 		this.x = x;
 		this.y = y;
 		this.color = color;
-		this.body = Bodies.circle(this.x, this.y, BALL_DIAMETER / 2);
+		this.maxSpeed = 10;
+
+		const options = {
+			restitution: 1.1, // bounciness
+			friction: 0.4,
+			isSensor: true,
+			label: "ball",
+		};
+		this.body = Bodies.circle(this.x, this.y, BALL_DIAMETER / 2, options);
 
 		Composite.add(world, this.body);
 	}
@@ -23,6 +31,10 @@ class Ball {
 			if (isCueBall) {
 				this.body.position.y = 200;
 			} else this.body = null;
+		} else {
+			if (Body.getSpeed(this.body) > this.maxSpeed) {
+				Body.setSpeed(this.body, this.maxSpeed);
+			}
 		}
 	}
 

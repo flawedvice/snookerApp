@@ -1,4 +1,12 @@
-let Engine, Render, Runner, Events, Composite, Mouse, MouseConstraint, Bodies;
+let Engine,
+	Render,
+	Runner,
+	Events,
+	Composite,
+	Mouse,
+	MouseConstraint,
+	Bodies,
+	Body;
 
 let engine, world, mouse, mouseContraint;
 let canvas;
@@ -21,6 +29,7 @@ function configMatter() {
 	Mouse = Matter.Mouse;
 	MouseConstraint = Matter.MouseConstraint;
 	Bodies = Matter.Bodies;
+	Body = Matter.Body;
 
 	const engineOpts = {
 		gravity: { y: 0 },
