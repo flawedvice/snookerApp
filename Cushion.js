@@ -41,6 +41,7 @@ class Cushion {
 
 		const options = {
 			isStatic: true,
+			label: "cushion",
 		};
 		this.body = Bodies.rectangle(
 			this.x,

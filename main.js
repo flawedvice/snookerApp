@@ -9,7 +9,7 @@ function setup() {
 	game = new Game();
 
 	Composite.allBodies(world).forEach((body) => {
-		if (body.label === "ball") {
+		if (body.label.includes("ball")) {
 			body.isSensor = false;
 		}
 	});
