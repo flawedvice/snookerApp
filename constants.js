@@ -1,31 +1,8 @@
-/// Constants
-// General constants
-const COLORS = new Map([
-	["brown", "#3f250d"],
-	["green", "#4e8834"],
-	["darkGreen", "#326018"],
-	["gold", "goldenrod"],
-	["greenBall", "#3fac00"],
-	["orangeBall", "#fb6e00"],
-	["yellowBall", "#f0e91e"],
-	["redBall", "#cb2e19"],
-	["blueBall", "#1c14d9"],
-	["purpleBall", "purple"],
-]);
-
-// Table constants
 const TABLE_LENGTH = 900;
 const TABLE_WIDTH = TABLE_LENGTH / 2;
-const TABLE_CUSHIONS = 20;
-/**
- * From left border of the table
- */
-const D_ZONE_LINE_X = window.innerWidth / 2 - TABLE_LENGTH / (2 * 1.7);
-
-// Ball constants
 const BALL_DIAMETER = TABLE_WIDTH / 36;
+const CUSHION_WIDTH = (3 / 4) * 1.5 * BALL_DIAMETER;
+ZONE_D_LINE = window.innerWidth / 2 - TABLE_LENGTH / (2 * 1.7);
 
-const cueBallCollision = 0x0001,
-	redCollision = 0x0002,
-	colorCollision = 0x0003,
-	cushionCollision = 0x0004;
+// Colors
+const brown = "#502900";

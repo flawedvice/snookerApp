@@ -7,7 +7,26 @@ class Table {
 		this.bottom = this.width / 2 - TABLE_CUSHIONS / 2;
 		this.right = this.width - TABLE_CUSHIONS / 2;
 		this.left = -this.width + TABLE_CUSHIONS / 2;
-		const options = {
+		this.pad = TABLE_CUSHIONS / 2;
+		this._addCushions();
+		this._addPockets();
+
+		Events.on(engine, "collisionStart", (event) => {
+			const pairs = event.pairs;
+			pairs.forEach((pair) => {
+				this.holes.forEach((hole) => {
+					if (pair.bodyA === hole || pair.bodyB === hole) {
+						console.log("hole");
+					} else {
+						console.log(hole.position, pair.bodyA.position);
+					}
+				});
+			});
+		});
+	}
+
+	_addCushions() {
+		const cushionOptions = {
 			isStatic: true,
 			restitution: 0.2,
 			friction: 1,
@@ -19,31 +38,78 @@ class Table {
 				height / 2 + TABLE_WIDTH / 2 - TABLE_CUSHIONS / 2,
 				TABLE_LENGTH,
 				TABLE_CUSHIONS,
-				options
+				cushionOptions
 			),
 			Bodies.rectangle(
 				width / 2,
 				height / 2 - TABLE_WIDTH / 2 + TABLE_CUSHIONS / 2,
 				TABLE_LENGTH,
 				TABLE_CUSHIONS,
-				options
+				cushionOptions
 			),
 			Bodies.rectangle(
 				width / 2 - TABLE_LENGTH / 2 + TABLE_CUSHIONS / 2,
 				height / 2,
 				TABLE_CUSHIONS,
 				TABLE_WIDTH,
-				options
+				cushionOptions
 			),
 			Bodies.rectangle(
 				width / 2 + TABLE_LENGTH / 2 - TABLE_CUSHIONS / 2,
 				height / 2,
 				TABLE_CUSHIONS,
 				TABLE_WIDTH,
-				options
+				cushionOptions
 			),
 		];
 		Composite.add(engine.world, this.cushions);
+	}
+
+	_addPockets() {
+		this.pockets = [
+			// Top Center
+			[[width / 2, this.top], [0], [0, this.pad]],
+			// Bottom Center
+			[[width / 2, this.bottom], [0], [0, -this.pad]],
+			// Top Right
+			[
+				[this.right, this.top],
+				[0, this.cornerRadius, 0, this.cornerRadius],
+				[-this.pad, this.pad],
+			],
+			// Bottom Right
+			[
+				[this.right, this.bottom],
+				[this.cornerRadius, 0, this.cornerRadius, 0],
+				[-this.pad, -this.pad],
+			],
+			// Bottom Left
+			[
+				[this.left, this.bottom],
+				[0, this.cornerRadius, 0, this.cornerRadius],
+				[this.pad, -this.pad],
+			],
+			// Top Left
+			[
+				[this.left, this.top],
+				[this.cornerRadius, 0, this.cornerRadius, 0],
+				[this.pad, this.pad],
+			],
+		];
+		const holesOptions = {
+			isStatic: true,
+			isSensor: true,
+		};
+		this.holes = this.pockets.map(([origin, _, holeMargin]) => {
+			return Bodies.circle(
+				holeMargin[0] + origin[0],
+				holeMargin[1] + origin[1],
+				(BALL_DIAMETER * 1.5) / 2,
+				holesOptions
+			);
+		});
+
+		Composite.add(engine.world, this.holes);
 	}
 
 	draw() {
@@ -87,41 +153,8 @@ class Table {
 
 		fill(COLORS.get("gold"));
 
-		const pad = TABLE_CUSHIONS / 2;
-
-		const pockets = [
-			// Top Center
-			[[0, this.top], [0], [0, pad]],
-			// Bottom Center
-			[[0, this.bottom], [0], [0, -pad]],
-			// Top Right
-			[
-				[this.right, this.top],
-				[0, this.cornerRadius, 0, this.cornerRadius],
-				[-pad, pad],
-			],
-			// Bottom Right
-			[
-				[this.right, this.bottom],
-				[this.cornerRadius, 0, this.cornerRadius, 0],
-				[-pad, -pad],
-			],
-			// Bottom Left
-			[
-				[this.left, this.bottom],
-				[0, this.cornerRadius, 0, this.cornerRadius],
-				[pad, -pad],
-			],
-			// Top Left
-			[
-				[this.left, this.top],
-				[this.cornerRadius, 0, this.cornerRadius, 0],
-				[pad, pad],
-			],
-		];
-
-		for (let i = 0; i < pockets.length; i++) {
-			const [origin, corners, _] = pockets[i];
+		for (let i = 0; i < this.pockets.length; i++) {
+			const [origin, corners, _] = this.pockets[i];
 			push();
 			translate(...origin);
 			switch (i) {
@@ -175,10 +208,10 @@ class Table {
 
 		// Draw holes
 		fill("black");
-		for (const [origin, _, holeMargin] of pockets) {
+		for (const [origin, _, holeMargin] of this.pockets) {
 			push();
-			translate(...origin);
-			circle(holeMargin[0], holeMargin[1], BALL_DIAMETER * 1.5);
+			translate(0, 0);
+			circle(origin.x, origin.y, BALL_DIAMETER * 1.5);
 			pop();
 		}
 
@@ -208,14 +241,7 @@ class Table {
 		pop();
 	}
 
-	checkBalls() {
-		for (const ball in game.redBalls) {
-			// Check if in pocket, then remove
-		}
-	}
-
 	run() {
-		this.checkBalls();
 		this.draw();
 	}
 }
