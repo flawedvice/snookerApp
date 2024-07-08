@@ -21,9 +21,12 @@
  * 	for adventurers and purists.
  * - Balls, as soon as they are lost, get to their original position so the
  * 	user can keep playing without interruptions.
+ * - A useful timer was placed in the left-bottom corner to keep track of the
+ * 	gameplay time, as it also is reseted when the layout is changed by the user
+ * 	with the "layout-modifier" keys (`1`, `2`, and `3`).
  *
- * What I'm most proud of it the crosshair implementation on the cue stick, as
- * it's a feature that was born out of the necessity of better testing, but
+ * What I'm most proud of it the crosshair and timer implementations, as
+ * they are features that were born out of the necessity of better testing, but
  * also made the game significantly more enjoyable.
  */
 
@@ -56,12 +59,15 @@ function keyReleased() {
 	if (key === "1") {
 		game.placeRedBalls();
 		game.placeColorBalls();
+		game.resetTimer();
 	} else if (key === "2") {
 		game.placeRedBalls("random");
 		game.placeColorBalls();
+		game.resetTimer();
 	} else if (key === "3") {
 		game.placeRedBalls("random");
 		game.placeColorBalls("random");
+		game.resetTimer();
 	} else if (keyCode === 32) {
 		cue.releaseForce();
 	}

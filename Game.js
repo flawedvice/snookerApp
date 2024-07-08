@@ -2,6 +2,10 @@ class Game {
 	constructor() {
 		this.placeColorBalls();
 		this.placeRedBalls();
+		this.timer = 59;
+		this.interval = setInterval(() => {
+			this.timer += 1;
+		}, 1000);
 
 		this.table = new Table();
 
@@ -22,6 +26,7 @@ class Game {
 		cue.run();
 
 		this._showCommands();
+		this._showTimer();
 	}
 
 	run() {
@@ -32,6 +37,14 @@ class Game {
 				this.fail();
 			}
 		}
+	}
+
+	resetTimer() {
+		clearInterval(this.interval);
+		this.timer = 0;
+		this.interval = setInterval(() => {
+			this.timer += 1;
+		}, 1000);
 	}
 
 	placeRedBalls(mode) {
@@ -201,6 +214,17 @@ class Game {
 		circle(75, 90, 4);
 		circle(75, 110, 4);
 		circle(75, 130, 4);
+		pop();
+	}
+
+	_showTimer() {
+		let minutes = Math.floor(this.timer / 60),
+			seconds = this.timer - minutes * 60;
+		push();
+		rect(120, height - 110, 140, 100, 6);
+		textAlign(LEFT, TOP);
+		text(`Minutes: ${minutes}`, 80, height - 125);
+		text(`Seconds: ${seconds}`, 80, height - 105);
 		pop();
 	}
 }
