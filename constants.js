@@ -18,7 +18,7 @@ const BALLS = {
 		id: 0,
 		color: "white",
 		x: window.innerWidth / 2,
-		y: 400, // CHANGE!
+		y: 200,
 	},
 	orange: {
 		id: 1,

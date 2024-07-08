@@ -7,6 +7,7 @@ class Pocket {
 		const bodyOpts = {
 			isStatic: true,
 			isSensor: true,
+			label: "pocket hole",
 		};
 
 		// Select proper position

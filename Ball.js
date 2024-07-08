@@ -36,6 +36,7 @@ class Ball {
 	}
 
 	update() {
+		// Updates must be depending on if the ball is still being used!
 		if (!Composite.allBodies(world).includes(this.body)) {
 			if (this.type === "colour") {
 				console.log(this.color + " ball potted");
@@ -44,15 +45,15 @@ class Ball {
 			if (Body.getSpeed(this.body) > this.maxSpeed) {
 				Body.setSpeed(this.body, this.maxSpeed);
 			}
-		}
-		let offScreenX =
-				this.body.position.x >= width || this.body.position.x <= 0,
-			offScreenY =
-				this.body.position.y <= 0 ||
-				this.body.position.y >= innerHeight;
-		if (offScreenX || offScreenY) {
-			Ball.toOrigin(this.body);
-			console.log(offScreenX, offScreenY);
+			let offScreenX =
+					this.body.position.x >= width || this.body.position.x <= 0,
+				offScreenY =
+					this.body.position.y <= 0 ||
+					this.body.position.y >= innerHeight;
+			if (offScreenX || offScreenY) {
+				Ball.toOrigin(this.body);
+				console.log(offScreenX, offScreenY);
+			}
 		}
 	}
 
