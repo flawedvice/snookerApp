@@ -20,12 +20,17 @@ class Game {
 		this.colorBalls.forEach((ball) => ball.run());
 		cueBall.run();
 		cue.run();
+
+		this._showCommands();
 	}
 
 	run() {
 		this.draw();
-		if (pottedColor >= 2) {
-			this.fail();
+		if (pottedColor > 0) {
+			this._drawAlert();
+			if (pottedColor >= 2) {
+				this.fail();
+			}
 		}
 	}
 
@@ -148,6 +153,16 @@ class Game {
 		}
 	}
 
+	_drawAlert() {
+		push();
+		rect(width - 200, 85, 300, 100, 6);
+		fill("red");
+		textAlign(CENTER, TOP);
+		text("ALERT", width - 200, 65);
+		text("Dropped  balls: " + pottedColor, width - 200, 85);
+		pop();
+	}
+
 	fail() {
 		push();
 		fill("grey");
@@ -168,6 +183,23 @@ class Game {
 			width / 2,
 			height / 2
 		);
+		pop();
+	}
+
+	_showCommands() {
+		push();
+		rect(200, 100, 300, 130, 6);
+		fill("grey");
+		textAlign(LEFT, TOP);
+		text("Grab the cue ball to place it in the table.", 80, 65);
+		text('Press "spacebar" to push the cue ball.', 80, 85);
+		text("Pot two coloured balls and you fail", 80, 105);
+		text("Pot as many red balls as you can!", 80, 125);
+		noStroke();
+		circle(75, 70, 4);
+		circle(75, 90, 4);
+		circle(75, 110, 4);
+		circle(75, 130, 4);
 		pop();
 	}
 }

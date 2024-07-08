@@ -56,8 +56,10 @@ class Cue {
 		this.end = preEnd.mult(TABLE_WIDTH);
 
 		// Update availability
-		const onX = x > leftLimit && x < rightLimit;
-		const onY = y > topLimit && y < bottomLimit;
+		const onX =
+			x > leftLimit - CUSHION_WIDTH && x < rightLimit + CUSHION_WIDTH;
+		const onY =
+			y > topLimit - CUSHION_WIDTH && y < bottomLimit + CUSHION_WIDTH;
 		const isStatic = Body.getSpeed(cueBall.body) < 1;
 
 		if (onX && onY && isStatic) {
