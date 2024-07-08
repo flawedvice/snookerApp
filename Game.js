@@ -188,13 +188,14 @@ class Game {
 
 	_showCommands() {
 		push();
-		rect(200, 100, 300, 130, 6);
+		rect(220, 110, 340, 130, 6);
 		fill("grey");
 		textAlign(LEFT, TOP);
-		text("Grab the cue ball to place it in the table.", 80, 65);
-		text('Press "spacebar" to push the cue ball.', 80, 85);
-		text("Pot two coloured balls and you fail", 80, 105);
-		text("Pot as many red balls as you can!", 80, 125);
+		text("Change the layout using the '1', '2', and '3' keys.", 80, 65);
+		text("Grab the cue ball to place it in the table.", 80, 85);
+		text('Press "spacebar" to push the cue ball.', 80, 105);
+		text("Pot two coloured balls and you fail", 80, 125);
+		text("Pot as many red balls as you can!", 80, 145);
 		noStroke();
 		circle(75, 70, 4);
 		circle(75, 90, 4);
