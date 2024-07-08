@@ -1,0 +1,912 @@
+
+ -------------------- Ball.js ------------------------ 
+
+class Ball {
+	constructor(x, y, color, id) {
+		this.x = x;
+		this.y = y;
+		this.color = color;
+		this.maxSpeed = 10;
+
+		this.type = "colour";
+		if (color === "white") {
+			this.type = "cue";
+		} else if (color === "red") {
+			this.type = "red";
+		}
+
+		const options = {
+			restitution: 1.1, // bounciness
+			friction: 0.4,
+			isSensor: true, // to avoid first paint bounces
+			label: `${this.type} ball`,
+			id,
+		};
+		this.body = Bodies.circle(this.x, this.y, BALL_DIAMETER / 2, options);
+
+		Composite.add(world, this.body);
+
+		this.setEvents();
+	}
+
+	draw() {
+		if (this.body) {
+			push();
+			fill(this.color);
+			circle(this.body.position.x, this.body.position.y, BALL_DIAMETER);
+			pop();
+		}
+	}
+
+	update() {
+		// Updates must be depending on if the ball is still being used!
+		if (!Composite.allBodies(world).includes(this.body)) {
+			if (this.type === "colour") {
+				console.log(this.color + " ball potted");
+			} else this.body = null;
+		} else {
+			if (Body.getSpeed(this.body) > this.maxSpeed) {
+				Body.setSpeed(this.body, this.maxSpeed);
+			}
+			let offScreenX =
+					this.body.position.x >= width || this.body.position.x <= 0,
+				offScreenY =
+					this.body.position.y <= 0 ||
+					this.body.position.y >= innerHeight;
+			if (offScreenX || offScreenY) {
+				Ball.toOrigin(this.body);
+				console.log(offScreenX, offScreenY);
+			}
+		}
+	}
+
+	run() {
+		this.update();
+		this.draw();
+	}
+
+	setEvents() {
+		Events.on(engine, "collisionEnd", (event) => {
+			const pairs = event.pairs;
+			pairs.forEach((pair) => {
+				if (this.color === "white") {
+					let message = "Collision: cue-";
+					if (pair.bodyA === this.body) {
+						message += pair.bodyB.label;
+						console.log(message);
+					} else if (pair.bodyB === this.body) {
+						message += pair.bodyA.label;
+						console.log(message);
+					}
+				}
+			});
+		});
+	}
+
+	static toOrigin(ball) {
+		const ballId = ball.id;
+
+		let ballOrigin = null;
+		if (ballId < 7) {
+			if (ballId > 0) pottedColor++;
+			ballOrigin = Object.values(BALLS).find(({ id }) => id === ballId);
+		}
+		const origin = Vector.create(ballOrigin.x, ballOrigin.y);
+		Body.setPosition(ball, origin, false);
+		Body.setSpeed(ball, 0);
+	}
+}
+
+ -------------------- config.js ------------------------ 
+
+// MatterJS variables
+let Engine,
+	Render,
+	Runner,
+	Events,
+	Composite,
+	Mouse,
+	MouseConstraint,
+	Bodies,
+	Body,
+	Vector;
+
+let engine, world, mouse, mouseContraint;
+
+// Interaction variables
+let canvas;
+
+// Elements variables
+let cueBall, cue;
+
+// Game variables
+let pottedColor = 0;
+
+function configP5() {
+	canvas = createCanvas(window.innerWidth, window.innerHeight);
+	background("lightblue");
+	rectMode(CENTER);
+	ellipseMode(CENTER);
+	angleMode(DEGREES);
+}
+
+function configMatter() {
+	Engine = Matter.Engine;
+	Render = Matter.Render;
+	Runner = Matter.Runner;
+	Events = Matter.Events;
+	Composite = Matter.Composite;
+	Mouse = Matter.Mouse;
+	MouseConstraint = Matter.MouseConstraint;
+	Bodies = Matter.Bodies;
+	Body = Matter.Body;
+	Vector = Matter.Vector;
+
+	const engineOpts = {
+		gravity: { y: 0 },
+	};
+	engine = Engine.create(engineOpts);
+	world = engine.world;
+
+	Engine.run(engine);
+}
+
+function configMouse() {
+	mouse = Mouse.create(canvas.elt);
+	const options = { mouse };
+	mouseConstraint = MouseConstraint.create(engine, options);
+	Composite.add(world, mouseConstraint);
+
+	Events.on(mouseConstraint, "mousemove", ({ mouse }) => {
+		const { x: ballX, y: ballY } = cueBall.body.position;
+		const { x, y } = mouse.position;
+
+		const onX =
+			x >= ballX - BALL_DIAMETER / 2 && x <= ballX + BALL_DIAMETER / 2;
+		const onY =
+			y >= ballY - BALL_DIAMETER / 2 && y <= ballY + BALL_DIAMETER / 2;
+
+		if (onX && onY) {
+			cursor("GRAB");
+		} else {
+			cursor();
+		}
+		//Body.setPosition(cue.body, mouse.position.x, mouse.position.y);
+	});
+
+	Events.on(mouseConstraint, "startdrag", (event) => {
+		const body = event.body;
+		if (body.label.includes("ball")) body.isSensor = true;
+	});
+	Events.on(mouseConstraint, "enddrag", (event) => {
+		const body = event.body;
+		if (body.label.includes("ball")) body.isSensor = false;
+	});
+}
+
+ -------------------- constants.js ------------------------ 
+
+const TABLE_LENGTH = 900;
+const TABLE_WIDTH = TABLE_LENGTH / 2;
+const BALL_DIAMETER = TABLE_WIDTH / 36;
+const CUSHION_WIDTH = (3 / 4) * 1.5 * BALL_DIAMETER;
+const ZONE_D_LINE = window.innerWidth / 2 - TABLE_LENGTH / (2 * 1.7);
+const topLimit = window.innerHeight / 2 - TABLE_WIDTH / 2 + CUSHION_WIDTH;
+const bottomLimit = window.innerHeight / 2 + TABLE_WIDTH / 2 - CUSHION_WIDTH;
+const leftLimit = window.innerWidth / 2 - TABLE_LENGTH / 2 + CUSHION_WIDTH;
+const rightLimit = window.innerWidth / 2 + TABLE_LENGTH / 2 - CUSHION_WIDTH;
+
+// Colors
+const brown = "#502900";
+
+// Balls
+
+const BALLS = {
+	cue: {
+		id: 0,
+		color: "white",
+		x: window.innerWidth / 2,
+		y: 200,
+	},
+	orange: {
+		id: 1,
+		color: "orange",
+		x: ZONE_D_LINE,
+		y: window.innerHeight / 2,
+	},
+	green: {
+		id: 2,
+		color: "green",
+		x: ZONE_D_LINE,
+		y: window.innerHeight / 2 - TABLE_WIDTH / 6,
+	},
+	yellow: {
+		id: 3,
+		color: "yellow",
+		x: ZONE_D_LINE,
+		y: window.innerHeight / 2 + TABLE_WIDTH / 6,
+	},
+	blue: {
+		id: 4,
+		color: "blue",
+		x: window.innerWidth / 2,
+		y: window.innerHeight / 2,
+	},
+	purple: {
+		id: 5,
+		color: "purple",
+		x: window.innerWidth / 2 + TABLE_LENGTH / 4,
+		y: window.innerHeight / 2,
+	},
+	black: {
+		id: 6,
+		color: "black",
+		x: window.innerWidth / 2 + TABLE_LENGTH / 2 - TABLE_LENGTH / 8,
+		y: window.innerHeight / 2,
+	},
+};
+
+ -------------------- Cue.js ------------------------ 
+
+class Cue {
+	constructor() {
+		this.start = createVector(200, 400);
+		this.end = createVector(this.start.x + TABLE_WIDTH, this.start.y + 4);
+
+		this.angle = this.start.angleBetween(this.end);
+		this.direction = this.start.copy();
+
+		this.force = 0;
+		this.forceStep = 0.01;
+		this.maxForce = 0.06;
+
+		this.ballAvailable = true;
+	}
+
+	draw() {
+		if (this.ballAvailable) {
+			this._drawCue();
+			this._drawPointer();
+		}
+	}
+	_drawCue() {
+		push();
+		stroke("#966F33");
+		strokeWeight(3);
+		fill("#966F33");
+		translate(this.start.x, this.start.y);
+		line(0, 0, this.end.x, this.end.y);
+		pop();
+	}
+
+	_drawPointer() {
+		push();
+		noFill();
+		stroke("red");
+		strokeWeight(1);
+		translate(this.start.x, this.start.y);
+		let centerX = -this.end.x / 2,
+			centerY = -this.end.y / 2,
+			top = createVector(centerX, centerY - BALL_DIAMETER / 2),
+			bottom = createVector(centerX, centerY + BALL_DIAMETER / 2),
+			left = createVector(centerX - BALL_DIAMETER / 2, centerY),
+			right = createVector(centerX + BALL_DIAMETER / 2, centerY);
+		circle(centerX, centerY, BALL_DIAMETER);
+		line(top.x, top.y, bottom.x, bottom.y);
+		line(left.x, left.y, right.x, right.y);
+		pop();
+	}
+
+	update() {
+		// Update position
+		const { x, y } = cueBall.body.position;
+		this.start = createVector(x, y);
+		let preEnd = createVector(mouseX - x, mouseY - y);
+		preEnd.normalize();
+		this.end = preEnd.mult(TABLE_WIDTH);
+
+		// Update availability
+		const onX =
+			x > leftLimit - CUSHION_WIDTH && x < rightLimit + CUSHION_WIDTH;
+		const onY =
+			y > topLimit - CUSHION_WIDTH && y < bottomLimit + CUSHION_WIDTH;
+		const isStatic = Body.getSpeed(cueBall.body) < 1;
+
+		if (onX && onY && isStatic) {
+			Body.setSpeed(cueBall.body, 0);
+			this.ballAvailable = true;
+		} else this.ballAvailable = false;
+
+		// Update angle & direction
+		if (this.ballAvailable) {
+			this.direction = createVector(x, y).sub(
+				createVector(mouseX, mouseY)
+			);
+			this.direction.normalize();
+			this.direction.y *= -1;
+		}
+
+		// Update force
+		if (keyIsDown(32) && this.force < this.maxForce) {
+			this.force += this.forceStep;
+		}
+	}
+
+	run() {
+		this.update();
+		this.draw();
+	}
+
+	releaseForce() {
+		if (this.ballAvailable) {
+			const ball = cueBall.body;
+			if (this.force > this.maxForce) {
+				this.force = this.maxForce;
+			}
+
+			let forceVector = this.direction.mult(this.force);
+
+			Body.applyForce(ball, ball.position, {
+				x: forceVector.x,
+				y: -forceVector.y,
+			});
+			this.force = 0;
+		}
+	}
+}
+
+ -------------------- Cushion.js ------------------------ 
+
+class Cushion {
+	constructor(position) {
+		// position can be bottom, top, right, left
+		this.x = 400;
+		this.y = 600;
+
+		this.height = 0;
+		this.width = 0;
+		switch (position) {
+			case "top":
+				this.height = CUSHION_WIDTH;
+				this.width = TABLE_LENGTH;
+				this.x = width / 2;
+				this.y = height / 2 - TABLE_WIDTH / 2;
+				break;
+			case "right":
+				this.height = TABLE_WIDTH;
+				this.width = CUSHION_WIDTH;
+				this.x = width / 2 - TABLE_LENGTH / 2;
+				this.y = height / 2;
+				break;
+			case "bottom":
+				this.height = CUSHION_WIDTH;
+				this.width = TABLE_LENGTH;
+				this.x = width / 2;
+				this.y = height / 2 + TABLE_WIDTH / 2;
+				break;
+			case "left":
+				this.height = TABLE_WIDTH;
+				this.width = CUSHION_WIDTH;
+				this.x = width / 2 + TABLE_LENGTH / 2;
+				this.y = height / 2;
+				break;
+			default:
+				this.height = CUSHION_WIDTH;
+				this.width = TABLE_LENGTH;
+				this.x = width / 2;
+				this.y = height / 2 + TABLE_WIDTH / 2;
+				break;
+		}
+
+		const options = {
+			isStatic: true,
+			restitution: 0.2,
+			friction: 1,
+			label: "cushion",
+		};
+		this.body = Bodies.rectangle(
+			this.x,
+			this.y,
+			this.width,
+			this.height,
+			options
+		);
+		Composite.add(world, this.body);
+	}
+
+	draw() {
+		push();
+		noStroke();
+		fill(brown);
+		rect(
+			this.body.position.x,
+			this.body.position.y,
+			this.width,
+			this.height
+		);
+		pop();
+	}
+
+	run() {
+		this.draw();
+	}
+}
+
+ -------------------- Game.js ------------------------ 
+
+class Game {
+	constructor() {
+		this.placeColorBalls();
+		this.placeRedBalls();
+		this.timer = 0;
+		this.interval = setInterval(() => {
+			this.timer += 1;
+		}, 1000);
+
+		this.table = new Table();
+
+		cue = new Cue();
+		cueBall = new Ball(
+			BALLS.cue.x,
+			BALLS.cue.y,
+			BALLS.cue.color,
+			BALLS.cue.id
+		);
+	}
+
+	draw() {
+		this.table.run();
+		this.redBalls.forEach((ball) => ball.run());
+		this.colorBalls.forEach((ball) => ball.run());
+		cueBall.run();
+		cue.run();
+
+		this._showCommands();
+		this._showTimer();
+	}
+
+	run() {
+		this.draw();
+		if (pottedColor > 0) {
+			this._drawAlert();
+			if (pottedColor >= 2) {
+				this.fail();
+			}
+		}
+	}
+
+	resetTimer() {
+		clearInterval(this.interval);
+		this.timer = 0;
+		this.interval = setInterval(() => {
+			this.timer += 1;
+		}, 1000);
+	}
+
+	placeRedBalls(mode) {
+		this.redBalls = [];
+		if (mode === "random") {
+			for (let i = 0; i < 15; i++) {
+				this.redBalls.push(
+					new Ball(
+						random(leftLimit, rightLimit),
+						random(bottomLimit, topLimit),
+						"red",
+						i + 7
+					)
+				);
+			}
+		} else {
+			let startHeight = 0;
+			let gap = 2;
+			let baseX = width / 2 + TABLE_LENGTH / 4 + gap,
+				baseY = height / 2;
+			let x, y;
+			let id = 7;
+			for (let i = 1; i <= 5; i++) {
+				// Columns
+				baseX += gap;
+				baseY = height / 2;
+				for (let j = 1; j <= i; j++) {
+					// Rows
+					baseY += gap;
+					x = baseX + BALL_DIAMETER * i;
+					y = baseY + startHeight + BALL_DIAMETER * (j - 1);
+					this.redBalls.push(new Ball(x, y, "red", id));
+					id++;
+				}
+				startHeight -= BALL_DIAMETER / 2 + gap;
+			}
+		}
+	}
+
+	placeColorBalls(mode) {
+		if (mode === "random") {
+			this.colorBalls = [
+				new Ball(
+					random(leftLimit, rightLimit),
+					random(bottomLimit, topLimit),
+					BALLS.orange.color,
+					BALLS.orange.id
+				),
+				new Ball(
+					random(leftLimit, rightLimit),
+					random(bottomLimit, topLimit),
+					BALLS.green.color,
+					BALLS.green.id
+				),
+				new Ball(
+					random(leftLimit, rightLimit),
+					random(bottomLimit, topLimit),
+					BALLS.yellow.color,
+					BALLS.yellow.id
+				),
+				new Ball(
+					random(leftLimit, rightLimit),
+					random(bottomLimit, topLimit),
+					BALLS.blue.color,
+					BALLS.blue.id
+				),
+				new Ball(
+					random(leftLimit, rightLimit),
+					random(bottomLimit, topLimit),
+					BALLS.purple.color,
+					BALLS.purple.id
+				),
+				new Ball(
+					random(leftLimit, rightLimit),
+					random(bottomLimit, topLimit),
+					BALLS.black.color,
+					BALLS.black.id
+				),
+			];
+		} else {
+			this.colorBalls = [
+				new Ball(
+					BALLS.orange.x,
+					BALLS.orange.y,
+					BALLS.orange.color,
+					BALLS.orange.id
+				),
+				new Ball(
+					BALLS.green.x,
+					BALLS.green.y,
+					BALLS.green.color,
+					BALLS.green.id
+				),
+				new Ball(
+					BALLS.yellow.x,
+					BALLS.yellow.y,
+					BALLS.yellow.color,
+					BALLS.yellow.id
+				),
+				new Ball(
+					BALLS.blue.x,
+					BALLS.blue.y,
+					BALLS.blue.color,
+					BALLS.blue.id
+				),
+				new Ball(
+					BALLS.purple.x,
+					BALLS.purple.y,
+					BALLS.purple.color,
+					BALLS.purple.id
+				),
+				new Ball(
+					BALLS.black.x,
+					BALLS.black.y,
+					BALLS.black.color,
+					BALLS.black.id
+				),
+			];
+		}
+	}
+
+	_drawAlert() {
+		push();
+		rect(width - 200, 85, 300, 100, 6);
+		fill("red");
+		textAlign(CENTER, TOP);
+		text("ALERT", width - 200, 65);
+		text("Dropped  balls: " + pottedColor, width - 200, 85);
+		pop();
+	}
+
+	fail() {
+		clearInterval(this.interval);
+		push();
+		fill("grey");
+		rect(
+			width / 2,
+			height / 2,
+			TABLE_LENGTH + CUSHION_WIDTH * 2,
+			TABLE_WIDTH + CUSHION_WIDTH * 2
+		);
+		fill("red");
+		textSize(100);
+		textAlign(CENTER, TOP);
+		text("FAILED", width / 2, height / 4 + 50);
+		textSize(50);
+		fill("black");
+		text(
+			"Potted colour balls twice. Reload browser to continue.",
+			width / 2,
+			height / 2
+		);
+		pop();
+	}
+
+	_showCommands() {
+		push();
+		rect(220, 110, 340, 130, 6);
+		fill("grey");
+		textAlign(LEFT, TOP);
+		text("Change the layout using the '1', '2', and '3' keys.", 80, 65);
+		text("Grab the cue ball to place it in the table.", 80, 85);
+		text('Press "spacebar" to push the cue ball.', 80, 105);
+		text("Pot two coloured balls and you fail", 80, 125);
+		text("Pot as many red balls as you can!", 80, 145);
+		noStroke();
+		circle(75, 70, 4);
+		circle(75, 90, 4);
+		circle(75, 110, 4);
+		circle(75, 130, 4);
+		pop();
+	}
+
+	_showTimer() {
+		let minutes = Math.floor(this.timer / 60),
+			seconds = this.timer - minutes * 60;
+		push();
+		rect(120, height - 110, 140, 100, 6);
+		textAlign(LEFT, TOP);
+		text(`Minutes: ${minutes}`, 80, height - 125);
+		text(`Seconds: ${seconds}`, 80, height - 105);
+		pop();
+	}
+}
+
+ -------------------- main.js ------------------------ 
+
+/**
+ * Commentary:
+ *
+ * An instruction set, failure alerts, collision detection, and even a
+ * crosshair are some of the features implemented in this unique snooker app.
+ *
+ * With a modular design based on the Object Oriented Programming paradigm,
+ * this game is easily extensible, it helps its readability, and a clear
+ * separation of concerns where every element is an independent entity with its
+ * drawing methods, event control, and other inner mechanisms.
+ *
+ * As per the functionality, is worth noting that:
+ * - A separation between aiming and pushing the cue was deemed optimal as it
+ * 	would allow the users to point using their mouse and shoot the cue ball
+ * 	using the space bar.
+ * - To avoid annoying issues raised at the moment of aiming, the cue becomes
+ * 	fixed to the cue ball as soon it has stopped moving and is on the table's
+ * 	cloth.
+ * - An ordering algorithm was set in place to set the position of every ball
+ * 	depending on what the user desires: a randomized play, or a more common one,
+ * 	for adventurers and purists.
+ * - Balls, as soon as they are lost, get to their original position so the
+ * 	user can keep playing without interruptions.
+ * - A useful timer was placed in the left-bottom corner to keep track of the
+ * 	gameplay time, as it also is reseted when the layout is changed by the user
+ * 	with the "layout-modifier" keys (`1`, `2`, and `3`).
+ *
+ * What I'm most proud of it the crosshair and timer implementations, as
+ * they are features that were born out of the necessity of better testing, but
+ * also made the game significantly more enjoyable.
+ */
+
+let game;
+
+function setup() {
+	/// Environment configuration
+	configP5();
+	configMatter();
+	configMouse();
+
+	game = new Game();
+
+	Composite.allBodies(world).forEach((body) => {
+		if (body.label.includes("ball")) {
+			body.isSensor = false;
+		}
+	});
+}
+
+function draw() {
+	Engine.update(engine);
+
+	background("lightblue");
+
+	game.run();
+}
+
+function keyReleased() {
+	if (key === "1") {
+		console.log("Pressed 1");
+		game.placeRedBalls();
+		game.placeColorBalls();
+		game.resetTimer();
+	} else if (key === "2") {
+		console.log("Pressed 2");
+		game.placeRedBalls("random");
+		game.placeColorBalls();
+		game.resetTimer();
+	} else if (key === "3") {
+		console.log("Pressed 3");
+		game.placeRedBalls("random");
+		game.placeColorBalls("random");
+		game.resetTimer();
+	} else if (keyCode === 32) {
+		console.log("Hitting cue");
+		cue.releaseForce();
+	}
+}
+
+ -------------------- Pocket.js ------------------------ 
+
+class Pocket {
+	constructor(position) {
+		// positions are tc tr r br bc bl l tl
+		this.position = position;
+		this.size = BALL_DIAMETER * 1.5;
+		this.corners = [0, 0, 0, 0];
+		const bodyOpts = {
+			isStatic: true,
+			isSensor: true,
+			label: "pocket hole",
+		};
+
+		// Select proper position
+		switch (this.position) {
+			case "tl":
+				this.x = width / 2 - TABLE_LENGTH / 2 + (CUSHION_WIDTH * 3) / 4;
+				this.y = height / 2 - TABLE_WIDTH / 2 + (CUSHION_WIDTH * 3) / 4;
+				this.corners = [10, 0, 0, 0];
+				break;
+			case "tc":
+				this.x = width / 2;
+				this.y = height / 2 - TABLE_WIDTH / 2 + (CUSHION_WIDTH * 3) / 4;
+				break;
+			case "tr":
+				this.x = width / 2 + TABLE_LENGTH / 2 - (CUSHION_WIDTH * 3) / 4;
+				this.y = height / 2 - TABLE_WIDTH / 2 + (CUSHION_WIDTH * 3) / 4;
+				this.corners = [0, 10, 0, 0];
+				break;
+			case "br":
+				this.x = width / 2 + TABLE_LENGTH / 2 - (CUSHION_WIDTH * 3) / 4;
+				this.y = height / 2 + TABLE_WIDTH / 2 - (CUSHION_WIDTH * 3) / 4;
+				this.corners = [0, 0, 10, 0];
+				break;
+			case "bc":
+				this.x = width / 2;
+				this.y = height / 2 + TABLE_WIDTH / 2 - (CUSHION_WIDTH * 3) / 4;
+				break;
+			case "bl":
+				this.x = width / 2 - TABLE_LENGTH / 2 + (CUSHION_WIDTH * 3) / 4;
+				this.y = height / 2 + TABLE_WIDTH / 2 - (CUSHION_WIDTH * 3) / 4;
+				this.corners = [0, 0, 0, 10];
+				break;
+		}
+
+		this.body = Bodies.circle(this.x, this.y, this.size / 2, bodyOpts);
+
+		Composite.add(world, this.body);
+
+		this.setEvents();
+	}
+
+	setEvents() {
+		Events.on(engine, "collisionStart", (event) => {
+			const pairs = event.pairs;
+			pairs.forEach(({ bodyA, bodyB }) => {
+				let toRemove = null;
+				if (bodyA === this.body) {
+					toRemove = bodyB;
+				} else if (bodyB === this.body) {
+					toRemove = bodyA;
+				}
+				if (toRemove && toRemove.label === "red ball") {
+					Composite.remove(world, toRemove);
+				} else if (toRemove) {
+					Ball.toOrigin(toRemove);
+				}
+			});
+		});
+	}
+
+	draw() {
+		const { x, y } = this.body.position;
+
+		let marginX = 0,
+			marginY = 0,
+			height = this.size * 1.2;
+
+		if (this.position.includes("b")) {
+			marginY = CUSHION_WIDTH / 1.6;
+		} else {
+			marginY = -CUSHION_WIDTH / 1.6;
+		}
+
+		if (this.position.includes("l")) {
+			marginX = (-CUSHION_WIDTH * 2) / 4;
+			height = this.size;
+		} else if (this.position.includes("r")) {
+			marginX = (CUSHION_WIDTH * 2) / 4;
+		} else {
+			height = CUSHION_WIDTH;
+		}
+		push();
+		noStroke();
+		fill("goldenrod");
+		rect(
+			x + marginX,
+			y + marginY,
+			this.size * 1.2,
+			height,
+			...this.corners
+		);
+		fill("black");
+		circle(x, y, this.size);
+		pop();
+	}
+
+	run() {
+		this.draw();
+	}
+}
+
+ -------------------- Table.js ------------------------ 
+
+class Table {
+	constructor() {
+		this.cushions = ["top", "right", "bottom", "left"].map(
+			(position) => new Cushion(position)
+		);
+		this.pockets = ["tl", "tc", "tr", "br", "bc", "bl"].map(
+			(position) => new Pocket(position)
+		);
+	}
+
+	draw() {
+		push();
+		fill("#326018");
+		rect(width / 2, height / 2, TABLE_LENGTH, TABLE_WIDTH);
+		pop();
+
+		this.drawZoneD();
+		this.cushions.forEach((cushion) => cushion.run());
+		this.pockets.forEach((pocket) => pocket.run());
+	}
+
+	run() {
+		this.draw();
+	}
+
+	drawZoneD() {
+		push();
+		stroke("white");
+		strokeWeight(1);
+		line(
+			ZONE_D_LINE,
+			height / 2 - TABLE_WIDTH / 2,
+			ZONE_D_LINE,
+			height / 2 + TABLE_WIDTH / 2
+		);
+		noFill();
+		arc(
+			ZONE_D_LINE,
+			height / 2,
+			TABLE_WIDTH / 3,
+			TABLE_WIDTH / 3,
+			90,
+			270,
+			CHORD
+		);
+		pop();
+	}
+}
