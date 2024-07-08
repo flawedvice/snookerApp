@@ -12,6 +12,7 @@ let Engine,
 let engine, world, mouse, mouseContraint;
 let canvas;
 let cueBall;
+let pottedColor = 0;
 
 function configP5() {
 	canvas = createCanvas(window.innerWidth, window.innerHeight);

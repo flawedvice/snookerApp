@@ -77,6 +77,7 @@ class Ball {
 
 		let ballOrigin = null;
 		if (ballId < 7) {
+			if (ballId > 0) pottedColor++;
 			ballOrigin = Object.values(BALLS).find(({ id }) => id === ballId);
 		}
 		const origin = Vector.create(ballOrigin.x, ballOrigin.y);

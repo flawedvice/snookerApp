@@ -26,6 +26,9 @@ class Game {
 
 	run() {
 		this.draw();
+		if (pottedColor >= 2) {
+			this.fail();
+		}
 	}
 
 	placeRedBalls(mode) {
@@ -145,5 +148,28 @@ class Game {
 				),
 			];
 		}
+	}
+
+	fail() {
+		push();
+		fill("grey");
+		rect(
+			width / 2,
+			height / 2,
+			TABLE_LENGTH + CUSHION_WIDTH * 2,
+			TABLE_WIDTH + CUSHION_WIDTH * 2
+		);
+		fill("red");
+		textSize(100);
+		textAlign(CENTER, TOP);
+		text("FAILED", width / 2, height / 4 + 50);
+		textSize(50);
+		fill("black");
+		text(
+			"Potted colour balls twice. Reload browser to continue.",
+			width / 2,
+			height / 2
+		);
+		pop();
 	}
 }
