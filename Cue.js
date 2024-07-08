@@ -15,14 +15,36 @@ class Cue {
 
 	draw() {
 		if (this.ballAvailable) {
-			push();
-			stroke("#966F33");
-			strokeWeight(3);
-			fill("#966F33");
-			translate(this.start.x, this.start.y);
-			line(0, 0, this.end.x, this.end.y);
-			pop();
+			this._drawCue();
+			this._drawPointer();
 		}
+	}
+	_drawCue() {
+		push();
+		stroke("#966F33");
+		strokeWeight(3);
+		fill("#966F33");
+		translate(this.start.x, this.start.y);
+		line(0, 0, this.end.x, this.end.y);
+		pop();
+	}
+
+	_drawPointer() {
+		push();
+		noFill();
+		stroke("red");
+		strokeWeight(1);
+		translate(this.start.x, this.start.y);
+		let centerX = -this.end.x / 2,
+			centerY = -this.end.y / 2,
+			top = createVector(centerX, centerY - BALL_DIAMETER / 2),
+			bottom = createVector(centerX, centerY + BALL_DIAMETER / 2),
+			left = createVector(centerX - BALL_DIAMETER / 2, centerY),
+			right = createVector(centerX + BALL_DIAMETER / 2, centerY);
+		circle(centerX, centerY, BALL_DIAMETER);
+		line(top.x, top.y, bottom.x, bottom.y);
+		line(left.x, left.y, right.x, right.y);
+		pop();
 	}
 
 	update() {
@@ -39,6 +61,7 @@ class Cue {
 		const isStatic = Body.getSpeed(cueBall.body) < 1;
 
 		if (onX && onY && isStatic) {
+			Body.setSpeed(cueBall.body, 0);
 			this.ballAvailable = true;
 		} else this.ballAvailable = false;
 
