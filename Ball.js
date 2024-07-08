@@ -67,7 +67,7 @@ class Ball {
 			const pairs = event.pairs;
 			pairs.forEach((pair) => {
 				if (this.color === "white") {
-					let message = "cue-";
+					let message = "Collision: cue-";
 					if (pair.bodyA === this.body) {
 						message += pair.bodyB.label;
 						console.log(message);

@@ -57,18 +57,22 @@ function draw() {
 
 function keyReleased() {
 	if (key === "1") {
+		console.log("Pressed 1");
 		game.placeRedBalls();
 		game.placeColorBalls();
 		game.resetTimer();
 	} else if (key === "2") {
+		console.log("Pressed 2");
 		game.placeRedBalls("random");
 		game.placeColorBalls();
 		game.resetTimer();
 	} else if (key === "3") {
+		console.log("Pressed 3");
 		game.placeRedBalls("random");
 		game.placeColorBalls("random");
 		game.resetTimer();
 	} else if (keyCode === 32) {
+		console.log("Hitting cue");
 		cue.releaseForce();
 	}
 }
