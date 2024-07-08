@@ -1,3 +1,4 @@
+// MatterJS variables
 let Engine,
 	Render,
 	Runner,
@@ -10,8 +11,14 @@ let Engine,
 	Vector;
 
 let engine, world, mouse, mouseContraint;
+
+// Interaction variables
 let canvas;
-let cueBall;
+
+// Elements variables
+let cueBall, cue;
+
+// Game variables
 let pottedColor = 0;
 
 function configP5() {

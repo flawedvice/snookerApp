@@ -33,5 +33,7 @@ function keyReleased() {
 	} else if (key === "3") {
 		game.placeRedBalls("random");
 		game.placeColorBalls("random");
+	} else if (keyCode === 32) {
+		cue.releaseForce();
 	}
 }

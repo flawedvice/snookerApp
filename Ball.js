@@ -15,7 +15,7 @@ class Ball {
 		const options = {
 			restitution: 1.1, // bounciness
 			friction: 0.4,
-			isSensor: true,
+			isSensor: true, // to avoid first paint bounces
 			label: `${this.type} ball`,
 			id,
 		};
@@ -37,15 +37,22 @@ class Ball {
 
 	update() {
 		if (!Composite.allBodies(world).includes(this.body)) {
-			if (this.type === "cue") {
-				this.body.position.y = 200;
-			} else if (this.type === "colour") {
+			if (this.type === "colour") {
 				console.log(this.color + " ball potted");
 			} else this.body = null;
 		} else {
 			if (Body.getSpeed(this.body) > this.maxSpeed) {
 				Body.setSpeed(this.body, this.maxSpeed);
 			}
+		}
+		let offScreenX =
+				this.body.position.x >= width || this.body.position.x <= 0,
+			offScreenY =
+				this.body.position.y <= 0 ||
+				this.body.position.y >= innerHeight;
+		if (offScreenX || offScreenY) {
+			Ball.toOrigin(this.body);
+			console.log(offScreenX, offScreenY);
 		}
 	}
 

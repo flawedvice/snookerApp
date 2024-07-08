@@ -1,14 +1,11 @@
 class Game {
-	topLimit = height / 2 - TABLE_WIDTH / 2 + CUSHION_WIDTH;
-	bottomLimit = height / 2 + TABLE_WIDTH / 2 - CUSHION_WIDTH;
-	leftLimit = width / 2 - TABLE_LENGTH / 2 + CUSHION_WIDTH;
-	rightLimit = width / 2 + TABLE_LENGTH / 2 - CUSHION_WIDTH;
-
 	constructor() {
 		this.placeColorBalls();
 		this.placeRedBalls();
 
 		this.table = new Table();
+
+		cue = new Cue();
 		cueBall = new Ball(
 			BALLS.cue.x,
 			BALLS.cue.y,
@@ -22,6 +19,7 @@ class Game {
 		this.redBalls.forEach((ball) => ball.run());
 		this.colorBalls.forEach((ball) => ball.run());
 		cueBall.run();
+		cue.run();
 	}
 
 	run() {
@@ -37,8 +35,8 @@ class Game {
 			for (let i = 0; i < 15; i++) {
 				this.redBalls.push(
 					new Ball(
-						random(this.leftLimit, this.rightLimit),
-						random(this.bottomLimit, this.topLimit),
+						random(leftLimit, rightLimit),
+						random(bottomLimit, topLimit),
 						"red",
 						i + 7
 					)
@@ -72,38 +70,38 @@ class Game {
 		if (mode === "random") {
 			this.colorBalls = [
 				new Ball(
-					random(this.leftLimit, this.rightLimit),
-					random(this.bottomLimit, this.topLimit),
+					random(leftLimit, rightLimit),
+					random(bottomLimit, topLimit),
 					BALLS.orange.color,
 					BALLS.orange.id
 				),
 				new Ball(
-					random(this.leftLimit, this.rightLimit),
-					random(this.bottomLimit, this.topLimit),
+					random(leftLimit, rightLimit),
+					random(bottomLimit, topLimit),
 					BALLS.green.color,
 					BALLS.green.id
 				),
 				new Ball(
-					random(this.leftLimit, this.rightLimit),
-					random(this.bottomLimit, this.topLimit),
+					random(leftLimit, rightLimit),
+					random(bottomLimit, topLimit),
 					BALLS.yellow.color,
 					BALLS.yellow.id
 				),
 				new Ball(
-					random(this.leftLimit, this.rightLimit),
-					random(this.bottomLimit, this.topLimit),
+					random(leftLimit, rightLimit),
+					random(bottomLimit, topLimit),
 					BALLS.blue.color,
 					BALLS.blue.id
 				),
 				new Ball(
-					random(this.leftLimit, this.rightLimit),
-					random(this.bottomLimit, this.topLimit),
+					random(leftLimit, rightLimit),
+					random(bottomLimit, topLimit),
 					BALLS.purple.color,
 					BALLS.purple.id
 				),
 				new Ball(
-					random(this.leftLimit, this.rightLimit),
-					random(this.bottomLimit, this.topLimit),
+					random(leftLimit, rightLimit),
+					random(bottomLimit, topLimit),
 					BALLS.black.color,
 					BALLS.black.id
 				),
