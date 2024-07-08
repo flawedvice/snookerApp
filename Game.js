@@ -2,7 +2,7 @@ class Game {
 	constructor() {
 		this.placeColorBalls();
 		this.placeRedBalls();
-		this.timer = 59;
+		this.timer = 0;
 		this.interval = setInterval(() => {
 			this.timer += 1;
 		}, 1000);
@@ -177,6 +177,7 @@ class Game {
 	}
 
 	fail() {
+		clearInterval(this.interval);
 		push();
 		fill("grey");
 		rect(
